@@ -18,7 +18,12 @@ from alipay.aop.api.util.SignatureUtils import verify_with_rsa
 支付宝支付对象创建
 """
 class Alipay():
-    # 对照接口文档，构造请求对象
+    '''
+    支付对象接口,使用方法:
+    alipay = Alipay()
+    alipay.init_app(app)
+    alipay.pay_order(order)
+    '''
     def __init__(self, app=None):
         if app is not None:
             self.init_app(app)
@@ -38,11 +43,18 @@ class Alipay():
         self.model.product_code = "FAST_INSTANT_TRADE_PAY"
         self.return_url = config['ALIPAY_RETURN_URL']
         self.notify_url = config['ALIPAY_NOTIFY_URL']
-        self.logger = self.get_logger(config['LOG_PATH'])
+        self.logger = None
+        if config['DEBUG']:
+            self.logger = self.get_logger(config['LOG_PATH'])
         self.client = DefaultAlipayClient(alipay_client_config=alipay_client_config, logger=self.logger)
 
 
     def pay_order(self, order):
+        '''
+        生成支付url
+        :param order:
+        :return:
+        '''
         self.model.out_trade_no = order.order_no
         self.model.total_amount = order.total_price
         self.model.subject = order.subject
